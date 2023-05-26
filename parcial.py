@@ -40,56 +40,60 @@ def menu_parcial(datos):
 
         jugadores=datos["jugadores"]
         opcion = menu_regexOpcion()
-        if opcion == "0":
-            print("Programa finalizado... ¡Adiós!")
-            time.sleep(3)
-            sys.exit()
-        elif opcion == "1":
-            mostrar_jugadores(jugadores)
-        elif opcion == "2":
-            paso_por_punto_dos=True
-            estadisticas_opcion_tres=seleccionar_jugador(jugadores)
-        elif opcion == "3":
-            if (paso_por_punto_dos != False):
-                guardar_estadisticas_csv(estadisticas_opcion_tres)
-            else:
-                print("no paso por punto 2 para tener las estadisticas.")
-        elif opcion == "4":
-            buscar_jugador(jugadores)
-        elif opcion == "5":
-            calcular_promedio_puntos(jugadores)
-        elif opcion == "6":
-            verificar_miembro_salon_fama(jugadores)
-        elif opcion == "7":
-            calcular_estadisticas(jugadores,"rebotes")
-        elif opcion == "8":
-            calcular_estadisticas(jugadores,"tiros_campo")
-        elif opcion == "9":
-            calcular_estadisticas(jugadores,"asistencias")
-        elif opcion == "10":
-            ingresar_valor_estadistica(jugadores, "puntos")
-        elif opcion == "11":
-            ingresar_valor_estadistica(jugadores, "rebotes")
-        elif opcion == "12":
-            ingresar_valor_estadistica(jugadores, "asistencias")
-        elif opcion == "13":
-            calcular_mayor_estadistica(jugadores, "robos")
-        elif opcion == "14":
-            calcular_mayor_estadistica(jugadores, "bloqueos")
-        elif opcion == "15":
-            ingresar_valor_porcentaje(jugadores,"tiros_libres")
-        elif opcion == "16":
-            calcular_promedio_puntos_excluyendo_menor(jugadores)
-        elif opcion == "17":
-            calcular_mayor_estadistica(jugadores, "logros")
-        elif opcion == "18":
-            ingresar_valor_porcentaje(jugadores,"tiros_triples")
-        elif opcion == "19":
-            calcular_mayor_estadistica(jugadores, "temporadas")
-        elif opcion == "20":
-            ingresar_valor_porcentaje(jugadores,"tiros_campo")
-        elif opcion == "23":
-            calcular_posicion_rankings(jugadores)
+        match(opcion):
+            case "0":
+                print("Programa finalizado... ¡Adiós!")
+                time.sleep(3)
+                sys.exit()
+            case "1":
+                mostrar_jugadores(jugadores)
+            case "2":
+                paso_por_punto_dos=True
+                estadisticas_opcion_tres=seleccionar_jugador(jugadores)
+            case "3":
+                if (paso_por_punto_dos != False):
+                    guardar_estadisticas_csv(estadisticas_opcion_tres)
+                else:
+                    print("no paso por punto 2 para tener las estadisticas.")
+            case "4":
+                buscar_jugador(jugadores)
+            case "5":
+                calcular_promedio_puntos(jugadores)
+            case "6":
+                verificar_miembro_salon_fama(jugadores)
+            case "7":
+                calcular_estadisticas(jugadores,"rebotes")
+            case "8":
+                calcular_estadisticas(jugadores,"tiros_campo")
+            case "9":
+                calcular_estadisticas(jugadores,"asistencias")
+            case "10":
+                ingresar_valor_estadistica(jugadores, "puntos")
+            case "11":
+                ingresar_valor_estadistica(jugadores, "rebotes")
+            case "12":
+                ingresar_valor_estadistica(jugadores, "asistencias")
+            case "13":
+                calcular_mayor_estadistica(jugadores, "robos")
+            case "14":
+                calcular_mayor_estadistica(jugadores, "bloqueos")
+            case "15":
+                ingresar_valor_porcentaje(jugadores,"tiros_libres")
+            case "16":
+                calcular_promedio_puntos_excluyendo_menor(jugadores)
+            case "17":
+                calcular_mayor_estadistica(jugadores, "logros")
+            case "18":
+                ingresar_valor_porcentaje(jugadores,"tiros_triples")
+            case "19":
+                calcular_mayor_estadistica(jugadores, "temporadas")
+            case "20":
+                ingresar_valor_porcentaje(jugadores,"tiros_campo")
+            case "23":
+                calcular_posicion_rankings(jugadores)
+            case _:
+                print("opcion no valida, intente denuevo...")
+                
 
 def seleccionar_jugador(jugadores):
     indice = int(input("favor de ingresar el indice a buscar: "))
@@ -202,21 +206,22 @@ def calcular_estadisticas(jugadores, opcion):
 
 
 def calcular_mayor_estadistica(jugadores, opcion):
-    if opcion == "robos":
-        estadistica = "robos_totales"
-        mensaje = "robos totales"
-    elif opcion == "bloqueos":
-        estadistica = "bloqueos_totales"
-        mensaje = "bloqueos totales"
-    elif opcion == "logros":
-        estadistica = "logros"
-        mensaje = "logros"
-    elif opcion == "temporadas":
-        estadistica = "temporadas"
-        mensaje = "temporadas"
-    else:
-        print("Opción inválida.")
-        return
+    match(opcion):
+        case "robos":
+            estadistica = "robos_totales"
+            mensaje = "robos totales"
+        case "bloqueos":
+            estadistica = "bloqueos_totales"
+            mensaje = "bloqueos totales"
+        case "logros":
+            estadistica = "logros"
+            mensaje = "logros"
+        case "temporadas":
+            estadistica = "temporadas"
+            mensaje = "temporadas"
+        case _:
+            print("Opción inválida.")
+            return 
 
     if opcion != "logros":
         jugador_mayor_estadistica = max(jugadores, key=lambda x: x['estadisticas'][estadistica])
@@ -270,18 +275,21 @@ def calcular_promedio_puntos_excluyendo_menor(jugadores):
 
 
 def ingresar_valor_porcentaje(jugadores, opcion):
-    if opcion == "tiros_libres":
-        estadistica = "porcentaje_tiros_libres"
-        mensaje = "tiros libres"
-    elif opcion == "tiros_triples":
-        estadistica = "porcentaje_tiros_triples"
-        mensaje = "tiros triples"
-    elif opcion == "tiros_campo":
-        estadistica = "porcentaje_tiros_de_campo"
-        mensaje = "tiros de campo"
-    else:
-        print("Opción inválida.")
-        return
+    
+    match(opcion):
+        case "tiros_libres":
+            estadistica = "porcentaje_tiros_libres"
+            mensaje = "tiros libres"
+        case "tiros_triples":
+            estadistica = "porcentaje_tiros_triples"
+            mensaje = "tiros triples"
+        case "tiros_campo":
+            estadistica = "porcentaje_tiros_de_campo"
+            mensaje = "tiros de campo"
+        case _:
+            print("Opción inválida.")
+            return
+        
     valor = opcion_indicador(mensaje)
     jugadores_seleccionados = [jugador for jugador in jugadores if jugador['estadisticas'][estadistica] > float(valor)]
     
