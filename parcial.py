@@ -39,6 +39,7 @@ def menu_parcial(datos):
         print('0 - Salir')
 
         jugadores=datos["jugadores"]
+        #leo la lista de jugadores, que contiene los diccionarios que buscamos, caso contrario chocara con el valor de nombre del equipo o cualquier otro de la lista
         opcion = menu_regexOpcion()
         match(opcion):
             case "0":
@@ -98,20 +99,25 @@ def menu_parcial(datos):
 def seleccionar_jugador(jugadores):
     indice = int(input("favor de ingresar el indice a buscar: "))
     jugador = obtener_jugador_por_indice(jugadores, indice)
+    #si existe jugador muestro sus estadisticas
     if jugador:
         print("--- Estadísticas completas del jugador seleccionado ---")
         estadisticas_opcion_tres = jugador
         mostrar_estadisticas(jugador)
+         #aca devuelvo las estadisticas para imprimir en la opcion 3
         return estadisticas_opcion_tres
     else:
         print("No se encontró un jugador con el índice especificado.")
 
 def obtener_jugador_por_indice(jugadores, indice):
     try:
+        #INTENTA, si el indice esta dentro del rango de jugadores lo devuelve
         if indice >= 1 and indice <= len(jugadores):
+            #las posiciones arrancan en 0 asique devuelvo la opcion menos 1
             jugador=jugadores[indice - 1]
             return jugador
         else:
+            #caso contrario error y no devuelve nada ademas del mensaje
             print("error de indice, intente denuevo")
             return None
     except ValueError:
@@ -120,12 +126,15 @@ def obtener_jugador_por_indice(jugadores, indice):
 def mostrar_estadisticas(jugador):
     estadisticas = jugador['estadisticas']
     for estadistica, valor in estadisticas.items():
+        #muestro el valor dentro de las estadisticas capitalizado para q se vea lindo
         print(f"{estadistica.capitalize()}: {valor}")
 
 def guardar_estadisticas_csv(jugador):
+    #si existe el jugador
     if jugador:
         nombre_archivo = input("Ingresa el nombre del archivo CSV para guardar las estadísticas: ")
         with open(nombre_archivo+".csv", 'w', newline='') as archivo:
+            #escribo el archivo con el nombre concatenado y una cabecera en la primer linea para darle columnas de clasificacion al archivo
             writer = csv.writer(archivo)
             writer.writerow(['Nombre', 'Temporadas', 'Puntos Totales', 'Promedio Puntos por Partido', 'Rebotes Totales', 'Promedio Rebotes por Partido',
                             'Asistencias Totales', 'Promedio Asistencias por Partido', 'Robos Totales', 'Bloqueos Totales',
@@ -133,6 +142,7 @@ def guardar_estadisticas_csv(jugador):
             
             estadisticas = jugador['estadisticas']
             nombre = jugador['nombre']
+            #tomo el nombre y las estadisticas que ya estan ordenadas para encajar con las columnas del archivo (en el orden por defecto)
             row = [nombre] + list(estadisticas.values())
             writer.writerow(row)
         print(f"Las estadísticas de los jugadores han sido guardadas en el archivo '{nombre_archivo}'.")
@@ -144,13 +154,16 @@ def buscar_jugador(jugadores):
     jugador_encontrado = None
     for jugador in jugadores:
         if jugador['nombre'].lower() == nombre.lower():
+            #si el nombre a buscar pasado todo a minuscula es igual al del indice actual TAMBIEN pasado todo a minuscula entonces matchea
             jugador_encontrado = jugador
             break
     if jugador_encontrado:
         logros = jugador_encontrado['logros']
+        #tomo sus logros y los muestro iterandolo luego del print
         print(f"Logros del jugador {nombre}:")
         for logro in logros:
             print(f"- {logro}")
+    #en caso de q no exista
     else:
         print("No se encontró un jugador con el nombre especificado.")
 
@@ -170,6 +183,7 @@ def calcular_promedio_puntos(jugadores):
 
 
 def verificar_miembro_salon_fama(jugadores):
+    #basicamente la misma documentacion para buscar jugador especifico
     nombre = input("Ingresa el nombre del jugador que deseas verificar si es miembro del Salón de la Fama del Baloncesto: ")
     jugador_encontrado = None
     for jugador in jugadores:
@@ -178,15 +192,21 @@ def verificar_miembro_salon_fama(jugadores):
             break
     if jugador_encontrado:
         logros = jugador_encontrado['logros']
+        #recorro y pregunto si ese string esta ahi
         if "Miembro del Salon de la Fama del Baloncesto" in logros:
             print(f"El jugador {nombre} es miembro del Salón de la Fama del Baloncesto.")
         else:
             print(f"El jugador {nombre} no es miembro del Salón de la Fama del Baloncesto.")
     else:
         print("No se encontró un jugador con el nombre especificado.")
+        
+        
 
 def calcular_estadisticas(jugadores, opcion):
     if opcion == "rebotes":
+        #busco al valor MAXIMO con  el metodo max que toma la lista de jugadores y el parametro a comparar, con una key que dentro tiene un lambda(funcion anonima) que devuelve el valor 
+        #que existe dentro de la clave estadisticas que en este caso es rebotes totales 
+        #lo mismo para el resto
         jugador_mayor_rebotes = max(jugadores, key=lambda x: x['estadisticas']['rebotes_totales'])
         nombre = jugador_mayor_rebotes['nombre']
         rebotes_totales = jugador_mayor_rebotes['estadisticas']['rebotes_totales']
@@ -207,6 +227,8 @@ def calcular_estadisticas(jugadores, opcion):
 
 def calcular_mayor_estadistica(jugadores, opcion):
     match(opcion):
+        #pase la opcion por parametro y la matcheo con la estadistica que quiero buscar para usarla posteriormente
+        #y el mensaje para el print
         case "robos":
             estadistica = "robos_totales"
             mensaje = "robos totales"
@@ -221,22 +243,45 @@ def calcular_mayor_estadistica(jugadores, opcion):
             mensaje = "temporadas"
         case _:
             print("Opción inválida.")
-            return 
+            return []
 
     if opcion != "logros":
-        jugador_mayor_estadistica = max(jugadores, key=lambda x: x['estadisticas'][estadistica])
-        nombre = jugador_mayor_estadistica['nombre']
-        valor_estadistica = jugador_mayor_estadistica['estadisticas'][estadistica]
-        print(f"El jugador con la mayor cantidad de {mensaje} es {nombre} con {valor_estadistica} {mensaje}.")
+        #ordeno la lista jugadores por el valor pasado por parametro dentro de la estadistica, se que suena repetitivo pero es lo que son.
+        #luego doy vuelta la lista para que me queden los mayores adelante de todo, ya que por defecto me devuelve de menor a mayor y no de mayor a menor
+        jugadores_mayor_estadistica = sorted(jugadores, key=lambda x: x['estadisticas'][estadistica], reverse=True)
+        jugadores_seleccionados = []
+        #lista vacia de jugadores
+        max_valor_estadistica = jugadores_mayor_estadistica[0]['estadisticas'][estadistica]
+        #tomo el primer valor de la lista ordenada de mayor a menor
+        
+        for jugador in jugadores_mayor_estadistica:
+            #si hay alguno que matchee cn el primero de la lista lo agrego
+            if jugador['estadisticas'][estadistica] == max_valor_estadistica:
+                jugadores_seleccionados.append(jugador)
+                
+        print(f"El/los jugadores con la mayor cantidad de {mensaje} son:")   
+        if jugadores_seleccionados:
+            for jugador in jugadores_seleccionados:
+                nombre = jugador['nombre']
+                valor_estadistica = jugador['estadisticas'][estadistica]
+                #guardo el valor dentro de nombre y estadistica buscada dentro de estadistica para mostrarlo
+                print(f"{nombre} con {valor_estadistica} {mensaje}.")
+        else:
+            print("No se encontraron jugadores que cumplan con el requisito.")
+    
     else:
         jugador_mayor_estadistica = max(jugadores, key=lambda x: len(x[estadistica]))
+        #el que tenga la mayor cantidad de logros
         nombre = jugador_mayor_estadistica['nombre']
         cantidad_logros = len(jugador_mayor_estadistica[estadistica])
+        #mido el largo de los logros xd
+        #no comparo con mas como lo hice arriba porque michael jordan hay uno solo
         print(f"El jugador con la mayor cantidad de {mensaje} es {nombre} con {cantidad_logros} {mensaje}.")
 
 
-
+#recibo la lista de jugadores y una opcion hardcodeada para el punto especifico(porque si eligio el punto en particular ya sabemos si es puntos, rebotes o asistencias)
 def ingresar_valor_estadistica(jugadores, opcion):
+    #misma logica que el metodo de arriba solo que comparo el valor flotante de lo que ingreso el usuario para que devuelva jugador en caso de la estadistica lo supere en la iteracion 
     if opcion == "puntos":
         estadistica = "promedio_puntos_por_partido"
         mensaje = "puntos"
@@ -250,7 +295,8 @@ def ingresar_valor_estadistica(jugadores, opcion):
         print("Opción inválida.")
         return
 
-    valor = opcion_indicador()
+    valor = opcion_indicador(mensaje)
+    #iteracion para comparar
     jugadores_seleccionados = [jugador for jugador in jugadores if jugador['estadisticas'][estadistica] > float(valor)]
     
     if jugadores_seleccionados:
@@ -264,16 +310,16 @@ def ingresar_valor_estadistica(jugadores, opcion):
 
 
 
-
+#recibo los jugadores de parametro, excluyo al q tiene el promedio mas bajo para luego sacar el promedio con la suma de los jugadores dividido los jugadores que exclui
 def calcular_promedio_puntos_excluyendo_menor(jugadores):
     jugadores_ordenados = sorted(jugadores, key=lambda x: x['estadisticas']['promedio_puntos_por_partido'])
-    jugadores_excluidos = jugadores_ordenados[:-1]
+    jugadores_excluidos = jugadores_ordenados[1:]
     promedio_puntos_totales = sum([jugador['estadisticas']['promedio_puntos_por_partido'] for jugador in jugadores_excluidos])
     promedio_puntos_excluyendo_menor = promedio_puntos_totales / len(jugadores_excluidos)
     print(f"El promedio de puntos por partido excluyendo al jugador con el menor promedio es {promedio_puntos_excluyendo_menor}.")
 
 
-
+#misma logica que en ingresar_valor_estadistica
 def ingresar_valor_porcentaje(jugadores, opcion):
     
     match(opcion):
@@ -303,34 +349,41 @@ def ingresar_valor_porcentaje(jugadores, opcion):
         print(f"No se encontraron jugadores con un porcentaje de {mensaje} mayor al valor especificado.")
 
 def calcular_posicion_rankings(jugadores):
+    #creo diccionario de rankings
     posiciones_rankings = {
         'puntos_totales': 'Puntos',
         'rebotes_totales': 'Rebotes',
         'asistencias_totales': 'Asistencias',
         'robos_totales': 'Robos'
     }
-    
+    #diccionario vacio
     ranking = {}
+    #por cada clave, valor dentro de posiciones rankings
     for posicion, descripcion in posiciones_rankings.items():
         jugadores_ordenados = sorted(jugadores, key=lambda jugador: jugador['estadisticas'][posicion], reverse=True)
+        #ordeno de mayor a menor segun la clave de posiciones_rankings,ejemplo puntos_totales, rebotes_totales, etc...
         ranking[descripcion] = jugadores_ordenados
-    
+        #seteo una descripcion con el jugador ordenado segun la clave de posicion ranking
+        
     nombre_archivo = input("Ingresa el nombre del archivo CSV para guardar las posiciones en los rankings: ")
+    #concateno nombre del archivo csv
     with open(nombre_archivo + ".csv", 'w', newline='') as archivo:
         writer = csv.writer(archivo)
         
-        # Escribir encabezados de columnas
+        #Escribo encabezados de columnas
         encabezados = ['Jugador']
         for descripcion in posiciones_rankings.values():
             encabezados.append('Posicion en ' + descripcion)
         writer.writerow(encabezados)
         
-        # Escribir datos de jugadores y posiciones
+        #Escribo datos de jugadores y posiciones
         for jugador in jugadores:
             nombre = jugador['nombre']
             row = [nombre]
             for descripcion in posiciones_rankings.values():
+                #por cada estadistica de  ranking seteo los jugadores guardados en ranking
                 jugadores_ranking = ranking[descripcion]
+                #la nueva posicion es el index del jugador indice mas uno y la agrega a la LINEA
                 posicion = jugadores_ranking.index(jugador) + 1
                 row.append(posicion)
             writer.writerow(row)
@@ -350,6 +403,7 @@ def imprimir_dato(dato):
     print(dato)
     
 def menu_regexOpcion():
+    #compara el patron de expresion regular cn la opcion ingresada
     opcion = input('Ingrese una opción: ')
     if re.match(patron, opcion):
         return opcion 
@@ -357,6 +411,7 @@ def menu_regexOpcion():
         return -1
     
 def opcion_indicador(mensaje):
+    #el parametro es la opcion hardcodeada en la llamada al metodo de este mismo.
     valor = input(f"Ingresa un valor para comparar el porcentaje de {mensaje}: ")
     if re.match(patronIndice, valor):
         return valor 
@@ -365,6 +420,7 @@ def opcion_indicador(mensaje):
     
 def leer_archivo()->list:
     datos=[]
+    #cargo datos jotason en lista vacia
     with open('dt.json', 'r') as f:
         datos = json.load(f)
     menu_parcial(datos)
