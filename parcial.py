@@ -6,7 +6,7 @@ import time
 
 # Expresiones regulares
 regex_nombre = r'^[a-zA-Z0-9\s]+$'
-patron = r"^(?:[0-9]|1[0-9]|2[0-3])$"
+patron = r"^(?:[0-9]|1[0-9]|2[0-7])$"
 patronIndice = r"^(?:[1-9]|[1-9][0-9]|100)$"
 
 
@@ -36,6 +36,10 @@ def menu_parcial(datos):
         print('19 - Calcular y mostrar el jugador con la mayor cantidad de temporadas jugadas.')
         print('20 - Ingresar un valor y mostrar los jugadores, ordenados por posición en la cancha, que hayan tenido un porcentaje de tiros de campo superior a ese valor.')
         print('23 - Calcular de cada jugador cuál es su posición en cada uno de los siguientes rankings: Puntos, Rebotes, Asistencias, Robos.')
+        print('24 - Determinar la cantidad de jugadores que hay por cada posición.')
+        print('25- Mostrar la lista de jugadores ordenadas por la cantidad de All-Star de forma descendente..')
+        print('26- Determinar qué jugador tiene las mejores estadísticas en cada valor.')
+        print('27- Determinar qué jugador tiene las mejores estadísticas de todos.')
         print('0 - Salir')
 
         jugadores=datos["jugadores"]
@@ -92,6 +96,15 @@ def menu_parcial(datos):
                 ingresar_valor_porcentaje(jugadores,"tiros_campo")
             case "23":
                 calcular_posicion_rankings(jugadores)
+            case "24":
+                cantidad_jugadores_por_posicion(jugadores)
+            case "25":
+                ordenar_por_all_star(jugadores)
+            case "26":
+                mejor_estadistica_por_valor(jugadores,"temporadas")
+                mejor_estadistica_por_valor(jugadores,"puntos_totales")
+            case "27":
+                mejor_estadistica_global(jugadores)
             case _:
                 print("opcion no valida, intente denuevo...")
                 
@@ -389,6 +402,53 @@ def calcular_posicion_rankings(jugadores):
             writer.writerow(row)
     
     print(f"Las posiciones en los rankings de los jugadores han sido guardadas en el archivo '{nombre_archivo}.csv'.")
+
+
+###########################################################################
+#EJERCICIOS EXTRA
+###########################################################################
+
+def cantidad_jugadores_por_posicion(jugadores):
+    jugadores_por_posicion = {}
+    for jugador in jugadores:
+        posicion = jugador["posicion"]
+        if posicion in jugadores_por_posicion:
+            jugadores_por_posicion[posicion] += 1
+        else:
+            jugadores_por_posicion[posicion] = 1
+    
+    for posicion, cantidad in jugadores_por_posicion.items():
+        print(posicion + ": " + str(cantidad))
+
+def ordenar_por_all_star(jugadores):
+    jugadores_ordenados = sorted(jugadores, key=lambda jugador: obtener_cantidad_all_star(jugador), reverse=True)
+    for jugador in jugadores_ordenados:
+        all_star_count = obtener_cantidad_all_star(jugador)
+        print(jugador["nombre"] + " (" + str(all_star_count) + " veces All-Star)")
+
+def obtener_cantidad_all_star(jugador):
+    logros = jugador["logros"]
+    all_star_count = 0
+    for logro in logros:
+        if "veces All-Star" in logro:
+            cantidad = "".join(filter(str.isdigit, logro))
+            all_star_count = int(cantidad)
+            break
+    return all_star_count
+
+
+def mejor_estadistica_por_valor(jugadores, valor):
+    mejor_jugador = max(jugadores, key=lambda jugador: jugador["estadisticas"][valor])
+    print("Mayor cantidad de " + valor + ": " + mejor_jugador["nombre"] + " (" + str(mejor_jugador["estadisticas"][valor]) + ")")
+
+def mejor_estadistica_global(jugadores):
+    mejor_jugador = max(jugadores, key=lambda jugador: sum(jugador["estadisticas"].values()))
+    print("Mejor jugador en todas las estadísticas: " + mejor_jugador["nombre"])
+    print("aunque no importa porque el mejor es michael jordan")
+
+#####################################################################################################
+#####################################################################################################
+
 
 
             
